@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя Валентинка</title>
+    <style>
+        :root {
+            --bg-color: #fff5f7;
+            --accent-color: #ff4d6d;
+            --text-color: #4a0e0e;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin: 2rem 0; color: var(--accent-color); text-align: center; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Сетка 2 колонки для удобства */
+            gap: 15px;
+            width: 90%;
+            max-width: 500px;
+            padding-bottom: 40px;
+        }
+
+        /* Маленькие карточки с фото */
+        .mini-card {
+            aspect-ratio: 1 / 1;
+            border-radius: 15px;
+            overflow: hidden; /* Чтобы фото не вылезало за края */
+            border: 3px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .mini-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Картинка впишется целиком */
+            background-color: #fff; /* Можно добавить белый фон, если фото не квадратное */
+        }
+
+        .mini-card:hover { transform: scale(1.03); }
+
+        /* Окно просмотра */
+        #detail-view {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 245, 247, 0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .full-card {
+            width: 85%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .full-card img {
+            width: 100%;
+            max-height: 60vh; /* Ограничим высоту, чтобы текст не улетал вниз */
+            object-fit: contain; /* Картинка не будет обрезаться */
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .full-card p { font-size: 1.2rem; color: var(--text-color); margin-bottom: 20px; }
+
+        button {
+            background: var(--accent-color);
+            color: white; border: none;
+            padding: 10px 30px; border-radius: 20px;
+            cursor: pointer; font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Для тебя ❤️</h1>
+
+    <div class="grid-container" id="grid"></div>
+
+    <div id="detail-view">
+        <div class="full-card">
+            <img id="detail-img" src="" alt="Photo">
+            <p id="detail-text"></p>
+            <button onclick="closeCard()">Назад</button>
+        </div>
+    </div>
+
+    <script>
+        // ЗАМЕНИ ПУТИ К КАРТИНКАМ И ТЕКСТ ЗДЕСЬ
+        const cardsData = [
+            { img: '1.png', text: '— Какой твой любимый фильм ужасов? \n— Тот, где мы с тобой не тупим, не бежим на второй этаж и доживаем до финала! Обещаю: если за нами погонится маньяк, я не буду спрашивать "Кто здесь?", а просто схвачу тебя в охапку и дам дёру.' },
+            { img: '2.png', text: 'Знаешь, даже если наступит самая долгая зима, как в Муми-доле, мне не будет одиноко. Потому что ты — моё личное солнце. Буду всегда восхищаться твоим золотым браслетиком на лапке и вместе собирать самые красивые ракушки, которые выбросит на берег после шторма. Главное, что мы в одной лодке.' },
+            { img: '3.png', text: 'Я мог бы пересечь целую вселенную, чтобы просто сказать тебе "привет". И хотя мир полон хаоса, ты для меня — тот самый "фиксированный момент во времени", который я ни за что не захочу изменить. Рад, что в моей временной линии есть ты.' },
+            { img: '4.png', text: 'Ты заставляешь моё сердце биться быстрее, чем Джон Бонэм по барабанам (а я гуглил — он делал это ОЧЕНЬ быстро)' },
+            { img: '5.png', text: 'С тобой даже ожидание автобуса под проливным дождем превращается в сцену из доброго аниме. Мне не нужен Тоторо, чтобы чувствовать себя на седьмом небе — достаточно просто быть рядом и болтать о всяком. Ты — чудо!' },
+            { img: '6.png', text: 'Если ты когда-нибудь потеряешься в темноте, я развешу тысячи лампочек, чтобы найти тебя. Я всегда готов слушать твой голос сквозь любые помехи. Даже если мир перевернется, я буду на связи, чтобы подержать тебя за руку.' }
+        ];
+
+        const grid = document.getElementById('grid');
+        const detailView = document.getElementById('detail-view');
+
+        cardsData.forEach((data, index) => {
+            const div = document.createElement('div');
+            div.className = 'mini-card';
+            div.innerHTML = `<img src="${data.img}" alt="preview">`;
+            div.onclick = () => openCard(index);
+            grid.appendChild(div);
+        });
+
+        function openCard(index) {
+            document.getElementById('detail-img').src = cardsData[index].img;
+            document.getElementById('detail-text').innerText = cardsData[index].text;
+            detailView.style.display = 'flex';
+        }
+
+        function closeCard() {
+            detailView.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
